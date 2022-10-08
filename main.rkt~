@@ -1,0 +1,130 @@
+#lang racket
+(define ns (make-base-namespace))
+(provide (all-defined-out))
+
+; 10 points
+(define := (lambda (var value) 
+    (list var value)
+))
+
+
+; 10 points
+;(define -- (lambda args 0))
+(define -- (lambda args 
+  (list 'let args)
+))
+
+
+; 10 points
+; (define @ (lambda (bindings expr) 0))
+(define @ (lambda (bindings expr) 
+  (append bindings expr) )
+)
+
+; 20 points
+;(define split_at_delim (lambda (delim args) 0))
+(define split_at_delim (lambda (delim args) 
+  (foldr (lambda (head tail)
+    (if  (eqv? head delim)
+      (cons '() tail)
+      (cons (cons head (car tail)) (cdr tail) ))
+    ) 
+   (list '()) args)
+))
+
+; 30 points
+;(define parse_expr (lambda (expr) 0))
+(define split_at_delim2 (lambda (delim args) 
+  (foldr (lambda (head tail)
+    (if  (eqv? head delim)
+      (cons '() tail)
+      (cons (cons head (car tail)) (cdr tail) ))
+    ) 
+   '() args)
+))
+
+
+(define parse_expr (lambda (expr)   ;this will be parse_expr
+  (cond
+  [(and (list? expr) (>  (length expr) 2) (member '+ expr))
+        
+        (cons '+ ( map term (split_at_delim  '+ expr)) )]
+  [else (term expr)]
+  )
+))
+
+(define term (lambda (expr)
+  (cond
+  [(and (list? expr) (>  (length expr) 2) (member '* expr))
+        
+        (cons '* ( map factor (split_at_delim  '* expr)) )]
+  [else (factor expr)]
+  )
+))
+(define factor (lambda (expr)
+  (cond
+  [(and (list? expr) (>  (length expr) 2) (member '@ expr))
+        (list 'let  (car (BindList (caar (split_at_delim  '@ expr)))) (parse_expr (cdr (member '@ expr))))]
+        ;(list  (factor (car expr)) (bindL (cddr expr)))]
+  [else (bindL expr)]
+  )
+))
+
+(define bindL (lambda (expr)
+  (cond
+  [(and (list? expr) (= 1 (length expr)))
+        
+        (parse_expr (car expr))]
+  [(and (list? expr) (>  (length expr)) 1)
+        
+        (parse_expr expr)]
+  [else expr]
+    )
+))
+(define assignmentCheck (lambda (expr)
+  (cond
+    [(and (list? expr) (=  (length expr) 3) (eqv? (cadr expr) ':=))
+      0
+    ]
+    [(null? expr) 0] ;not sure
+    [else 1]
+  )
+))
+
+(define break (lambda (expr)
+  ;(display expr)
+  (cond 
+       [(number? (caddr expr))  (list (cadar expr) (caddr expr))]
+       [else (list (cadar expr) (cadr (caddr expr)) ) ]
+       )
+
+))
+
+(define assignmentList (lambda (expr)
+  (cond
+    [(and (list? expr) (=  (length expr) 3) (eqv? (cadr expr) ':=))
+      (break expr)
+      
+    ]
+    [(null? expr) '()] 
+    [else #f]   ;not sure
+  )
+))
+
+(define BindList (lambda (expr)
+  (cond
+    [(eq? 0 (foldl + 0 (map assignmentCheck (split_at_delim2 '-- expr))))
+      (list  (map assignmentList (split_at_delim2 '-- expr)))
+    ]
+    [else #f]
+  )
+
+))
+
+
+
+; 20 points
+(define eval_expr (lambda(expr)
+
+  (eval (parse_expr expr) ns)
+))
