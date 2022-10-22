@@ -1,31 +1,24 @@
-; rukiye aslan
-; 2019400030
-; compiling: yes
-; complete: yes
+
 
 #lang racket
 (define ns (make-base-namespace))
 (provide (all-defined-out))
 
-; 10 points
+
 (define := (lambda (var value) 
     (list var value)
 ))
 
 
-; 10 points
+
 (define -- (lambda args 
   (list 'let args)
 ))
 
 
-; 10 points
-
 (define @ (lambda (bindings expr) 
   (append bindings expr) )
 )
-
-; 20 points
 
 (define split_at_delim (lambda (delim args) 
   (foldr (lambda (head tail)
@@ -35,7 +28,7 @@
     ) 
    (list '()) args)))
 
-; 30 points
+
 ;(define parse_expr (lambda (expr) 0))
 (define split_at_delim2 (lambda (delim args) 
   (foldr (lambda (head tail)
@@ -104,7 +97,7 @@
     [else #f]
   )))
 
-; 20 points
+
 (define eval_expr (lambda(expr)
 
   (eval (parse_expr expr) ns)
