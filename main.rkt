@@ -27,7 +27,6 @@
    (list '()) args)))
 
 
-;(define parse_expr (lambda (expr) 0))
 (define split_at_delim2 (lambda (delim args) 
   (foldr (lambda (head tail)
     (if  (eqv? head delim)
